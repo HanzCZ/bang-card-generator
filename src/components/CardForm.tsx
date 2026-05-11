@@ -1,7 +1,6 @@
 import type { CardParams } from "../types";
 import { CARD_TYPES, CARD_VALUES } from "../types";
 import type { SuitData } from "../api";
-
 import FileDropZone from "./FileDropZone";
 
 interface Props {
@@ -12,150 +11,121 @@ interface Props {
   onExport: () => void;
 }
 
-function Label({ children }: { children: React.ReactNode }) {
-  return <p className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-1.5">{children}</p>;
-}
-
-function Input({ ...props }: React.InputHTMLAttributes<HTMLInputElement>) {
-  return (
-    <input
-      {...props}
-      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-amber-400/60 transition-colors"
-    />
-  );
-}
-
-function Textarea({ ...props }: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
-  return (
-    <textarea
-      {...props}
-      className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-amber-400/60 transition-colors resize-none"
-    />
-  );
+function SectionTitle({ children }: { children: React.ReactNode }) {
+  return <div className="section-title"><span>{children}</span></div>;
 }
 
 export default function CardForm({ params, suits, loading, onChange, onExport }: Props) {
   const hasValueSuit = params.card_type <= 2;
 
   return (
-    <div className="flex flex-col gap-5 w-72 shrink-0">
-      {/* Card Type */}
-      <div>
-        <Label>Card Type</Label>
-        <div className="flex flex-col gap-1">
-          {CARD_TYPES.map((t) => (
-            <label
-              key={t.id}
-              className={`flex items-center gap-2.5 cursor-pointer px-3 py-2 rounded-lg text-sm transition-colors ${
-                params.card_type === t.id
-                  ? "bg-amber-400/15 text-amber-300 border border-amber-400/30"
-                  : "text-white/60 hover:bg-white/5 border border-transparent"
-              }`}
-            >
-              <input
-                type="radio"
-                className="accent-amber-400"
-                checked={params.card_type === t.id}
-                onChange={() => onChange({ card_type: t.id })}
-              />
-              {t.label}
-            </label>
-          ))}
-        </div>
+    <div className="wood-panel rounded shrink-0 flex flex-col gap-0 p-4" style={{ width: "288px" }}>
+
+      {/* Card type */}
+      <SectionTitle>Card Type</SectionTitle>
+      <div className="flex flex-col gap-0.5">
+        {CARD_TYPES.map((t) => (
+          <label key={t.id} className={`card-type-row ${params.card_type === t.id ? "active" : ""}`}>
+            <input
+              type="radio"
+              name="card_type"
+              checked={params.card_type === t.id}
+              onChange={() => onChange({ card_type: t.id })}
+            />
+            {t.label}
+          </label>
+        ))}
       </div>
 
       {/* Value + Suit */}
-      <div className={hasValueSuit ? "" : "opacity-40 pointer-events-none"}>
-        <Label>Card Value</Label>
-        <select
-          value={params.card_value}
-          onChange={(e) => onChange({ card_value: e.target.value })}
-          className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-400/60 transition-colors"
-          disabled={!hasValueSuit}
-        >
-          {CARD_VALUES.map((v) => <option key={v} value={v}>{v}</option>)}
-        </select>
-
-        <Label>Suit</Label>
-        <div className="flex gap-3 mt-1">
-          {suits.map((s) => (
-            <button
-              key={s.id}
-              type="button"
-              onClick={() => onChange({ card_suit: s.id as 0 | 1 | 2 | 3 })}
-              className={`p-1.5 rounded-lg border-2 transition-all ${
-                params.card_suit === s.id
-                  ? "border-amber-400 bg-amber-400/15 scale-110"
-                  : "border-white/10 hover:border-white/30"
-              }`}
-            >
-              <img src={s.src} alt={`suit-${s.id}`} className="w-7 h-7 object-contain" />
-            </button>
-          ))}
+      <div style={hasValueSuit ? {} : { opacity: 0.35, pointerEvents: "none" }}>
+        <SectionTitle>Value &amp; Suit</SectionTitle>
+        <div className="flex gap-3 items-center">
+          <select
+            value={params.card_value}
+            onChange={(e) => onChange({ card_value: e.target.value })}
+            disabled={!hasValueSuit}
+            className="w-input w-input"
+            style={{ width: "90px" }}
+          >
+            {CARD_VALUES.map((v) => <option key={v} value={v} style={{ background: "#1a0d06" }}>{v}</option>)}
+          </select>
+          <div className="flex gap-2">
+            {suits.map((s) => (
+              <button
+                key={s.id}
+                type="button"
+                onClick={() => onChange({ card_suit: s.id as 0 | 1 | 2 | 3 })}
+                className={`suit-btn ${params.card_suit === s.id ? "active" : ""}`}
+              >
+                <img src={s.src} alt={`suit-${s.id}`} style={{ width: "24px", height: "24px", objectFit: "contain" }} />
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Text Fields */}
-      <div className="flex flex-col gap-3">
+      {/* Text fields */}
+      <SectionTitle>Card Text</SectionTitle>
+      <div className="flex flex-col gap-2.5">
         <div>
-          <Label>Title</Label>
-          <Input value={params.title} onChange={(e) => onChange({ title: e.target.value })} placeholder="Bang" />
+          <p style={{ fontFamily: '"Rye", cursive', fontSize: "9px", color: "#7a5820", letterSpacing: "0.15em", marginBottom: "5px" }}>TITLE</p>
+          <input className="w-input" value={params.title} onChange={(e) => onChange({ title: e.target.value })} placeholder="Bang" />
         </div>
         <div>
-          <Label>Subtitle <span className="normal-case text-white/30">(optional)</span></Label>
-          <Input value={params.subtitle} onChange={(e) => onChange({ subtitle: e.target.value })} placeholder="Subtitle" />
+          <p style={{ fontFamily: '"Rye", cursive', fontSize: "9px", color: "#7a5820", letterSpacing: "0.15em", marginBottom: "5px" }}>
+            SUBTITLE <span style={{ color: "#4a3010", textTransform: "none", fontFamily: '"Lora", serif', fontSize: "9px" }}>(optional)</span>
+          </p>
+          <input className="w-input" value={params.subtitle} onChange={(e) => onChange({ subtitle: e.target.value })} placeholder="e.g. Quick Draw" />
         </div>
         <div>
-          <Label>Author <span className="normal-case text-white/30">(optional)</span></Label>
-          <Input value={params.author} onChange={(e) => onChange({ author: e.target.value })} placeholder="Author" />
+          <p style={{ fontFamily: '"Rye", cursive', fontSize: "9px", color: "#7a5820", letterSpacing: "0.15em", marginBottom: "5px" }}>
+            AUTHOR <span style={{ color: "#4a3010", textTransform: "none", fontFamily: '"Lora", serif', fontSize: "9px" }}>(optional)</span>
+          </p>
+          <input className="w-input" value={params.author} onChange={(e) => onChange({ author: e.target.value })} placeholder="Your name" />
         </div>
         <div>
-          <Label>Description</Label>
-          <Textarea
-            rows={5}
+          <p style={{ fontFamily: '"Rye", cursive', fontSize: "9px", color: "#7a5820", letterSpacing: "0.15em", marginBottom: "5px" }}>DESCRIPTION</p>
+          <textarea
+            className="w-input"
+            rows={4}
+            style={{ resize: "none" }}
             value={params.description}
             onChange={(e) => onChange({ description: e.target.value })}
-            placeholder="Card ability description…"
+            placeholder="Card ability text…"
           />
         </div>
       </div>
 
       {/* Artwork */}
-      <div className="flex flex-col gap-3">
+      <SectionTitle>Artwork</SectionTitle>
+      <div className="flex flex-col gap-2">
         <FileDropZone label="Main Artwork" value={params.art} onChange={(f) => onChange({ art: f })} />
         <FileDropZone label="Expansion Art" optional value={params.expansion_art} onChange={(f) => onChange({ expansion_art: f })} />
       </div>
 
-      {/* Back Card Toggle */}
-      <div>
-        <Label>Card Back</Label>
-        <div className="flex gap-2">
-          {[true, false].map((v) => (
-            <button
-              key={String(v)}
-              type="button"
-              onClick={() => onChange({ back_card: v })}
-              className={`flex-1 py-2 rounded-lg text-sm font-medium border transition-all ${
-                params.back_card === v
-                  ? "bg-amber-400/15 border-amber-400/40 text-amber-300"
-                  : "border-white/10 text-white/40 hover:border-white/20"
-              }`}
-            >
-              {v ? "Include" : "Exclude"}
-            </button>
-          ))}
-        </div>
+      {/* Card back */}
+      <SectionTitle>Card Back</SectionTitle>
+      <div className="flex gap-2">
+        {([true, false] as const).map((v) => (
+          <button
+            key={String(v)}
+            type="button"
+            onClick={() => onChange({ back_card: v })}
+            className={`toggle-btn ${params.back_card === v ? "active" : ""}`}
+          >
+            {v ? "Include" : "Exclude"}
+          </button>
+        ))}
       </div>
 
       {/* Export */}
-      <button
-        type="button"
-        disabled={loading}
-        onClick={onExport}
-        className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:opacity-50 disabled:cursor-not-allowed text-black font-semibold text-sm transition-colors"
-      >
-        {loading ? "Generating…" : "Export Card (PNG)"}
-      </button>
+      <div style={{ marginTop: "20px" }}>
+        <button type="button" disabled={loading} onClick={onExport} className="btn-draw">
+          {loading ? "⟳  Rendering…" : "✦  Draw Your Cards  ✦"}
+        </button>
+      </div>
+
     </div>
   );
 }
