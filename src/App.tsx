@@ -12,7 +12,7 @@ const DEFAULT_PARAMS: CardParams = {
   subtitle: "",
   author: "",
   description: "Choose a player within range. That player loses 1 life point.",
-  back_card: true,
+  back_card: false,
   art: null,
   expansion_art: null,
 };
